@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -67,10 +67,9 @@ const Login = ({ isOpen, onClose }) => {
 
       {/* Slide Panel */}
       <div
-        className={`fixed top-0 right-0 z-50 h-screen w-full sm:w-[450px] 
-        bg-black/20 backdrop-blur-3xl border-l border-white/15 
-        shadow-[0_8px_32px_rgba(0,0,0,0.45)] ring-1 ring-white/20
-        p-8 flex flex-col justify-center text-white 
+        className={`modal-surface fixed top-0 right-0 z-50 h-screen w-full sm:w-[450px]
+        border-l border-white/15
+        p-8 flex flex-col justify-center text-white
         transition-transform duration-500 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -111,7 +110,7 @@ const Login = ({ isOpen, onClose }) => {
                 placeholder="Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-autumn-bg/50 focus:outline-none focus:border-autumn-primary focus:ring-1 focus:ring-autumn-primary transition-all"
+                className="field-control w-full px-4 py-3 placeholder-autumn-bg/50"
               />
             </div>
           )}
@@ -149,7 +148,7 @@ const Login = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-autumn-primary hover:bg-autumn-muted text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-300 mt-2 cursor-pointer active:scale-95 disabled:opacity-50"
+              className="primary-action w-full font-semibold py-3 rounded-xl shadow-lg transition-all duration-300 ease-in-out mt-2 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Log In'}
           </button>

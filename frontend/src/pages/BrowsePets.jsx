@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import PetCard from '../components/PetCard';
 import UserDashboard from './UserDashboard';
 
@@ -23,7 +23,7 @@ const shopData = [
 
 const BrowsePets = () => {
   const [activeTab, setActiveTab] = useState('pets');
-  const [pageLoaded, setPageLoaded] = useState(false);
+  const [pageLoaded] = useState(true);
   // Get the logged-in user from localStorage (set during login)
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   const [cart, setCart] = useState(() => {
@@ -48,16 +48,9 @@ const BrowsePets = () => {
   const [petsLoading, setPetsLoading] = useState(true);
   const [petsError, setPetsError] = useState('');
 
-  useEffect(() => {
-    setPageLoaded(true);
-  }, []);
-
   // Fetch pets from the API whenever the pets tab is active
   useEffect(() => {
     if (activeTab !== 'pets') return;
-
-    setPetsLoading(true);
-    setPetsError('');
 
     fetch(`${API_URL}/api/pets`)
       .then((res) => {
@@ -65,6 +58,7 @@ const BrowsePets = () => {
         return res.json();
       })
       .then((data) => {
+        setPetsError('');
         setPets(data);
         setPetsLoading(false);
       })
@@ -144,8 +138,9 @@ const BrowsePets = () => {
       return;
     }
 
+    const previousOrders = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
     const order = {
-      id: `ORD-${Date.now()}`,
+      id: `ORD-${previousOrders.length + 1}`,
       date: new Date().toLocaleDateString('en-US'),
       items: cart.map(({ id, name: itemName, price, quantity }) => ({
         id,
@@ -157,7 +152,6 @@ const BrowsePets = () => {
       status: 'Placed',
       customer: { name, email, address },
     };
-    const previousOrders = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
     localStorage.setItem(orderStorageKey, JSON.stringify([order, ...previousOrders]));
     clearCart();
     setCheckoutError('');
@@ -169,14 +163,14 @@ const BrowsePets = () => {
 
   return (
     <div
-      className={`w-full min-h-screen overflow-x-hidden bg-gradient-to-br from-black via-[#08130f] to-[#0f241a] px-4 sm:px-6 py-6 text-white transition-opacity duration-1000 ease-out ${
+      className={`app-page w-full min-h-screen overflow-x-hidden px-4 sm:px-6 py-6 text-white transition-opacity duration-1000 ease-in-out ${
         pageLoaded ? 'opacity-100' : 'opacity-0'
       }`}
     >
       <div className="max-w-[1600px] mx-auto">
 
         {/* Navigation Bar */}
-        <header className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 mb-8 pb-4 border-b border-white/10">
+        <header className="glass-panel grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 mb-8 rounded-2xl px-4 py-4">
 
           {/* Logo */}
           <div
@@ -197,7 +191,7 @@ const BrowsePets = () => {
           </div>
 
           {/* Center Tabs */}
-          <div className="bg-black/20 backdrop-blur-3xl border border-white/15 p-1.5 rounded-2xl ring-1 ring-white/10 flex gap-2">
+          <div className="bg-black/25 border border-white/15 p-1 rounded-xl flex gap-1">
             <button
               onClick={() => setActiveTab('pets')}
               className={`px-5 sm:px-7 py-2.5 rounded-xl font-semibold transition-all duration-300 cursor-pointer text-sm sm:text-base ${
@@ -220,11 +214,11 @@ const BrowsePets = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-center md:justify-end gap-3">
+          <div className="flex items-center justify-center md:justify-end gap-2">
             {/* Dashboard / Account Button */}
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl border transition-all duration-300 ease-in-out cursor-pointer ${
                 activeTab === 'dashboard'
                   ? 'bg-autumn-primary/20 border-autumn-primary text-white'
                   : 'bg-black/20 border-white/15 text-autumn-bg hover:text-white hover:border-white/30'
@@ -240,7 +234,7 @@ const BrowsePets = () => {
 
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/15 bg-black/20 text-autumn-bg hover:text-white hover:border-white/30 transition-all cursor-pointer"
+              className="secondary-action flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer"
             >
               Cart ({cartCount})
             </button>
@@ -250,7 +244,7 @@ const BrowsePets = () => {
         {isCartOpen && (
           <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}>
             <aside
-              className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-[#08130f] border-l border-white/15 p-6 text-white shadow-2xl"
+              className="modal-surface absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto p-6 text-white"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -375,7 +369,7 @@ const BrowsePets = () => {
                 {shopData.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-3xl bg-black/15 backdrop-blur-3xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45)] ring-1 ring-white/20 p-3.5 text-white flex flex-col justify-between hover:border-white/30 transition-all duration-300"
+                      className="surface-card rounded-2xl p-3.5 text-white flex flex-col justify-between"
                   >
                     <div>
                       <div className="overflow-hidden rounded-2xl h-40 w-full mb-3">
@@ -390,7 +384,7 @@ const BrowsePets = () => {
                       <span className="text-lg font-bold text-white">{item.price}</span>
                       <button
                         onClick={() => addToCart(item)}
-                        className="bg-autumn-primary hover:bg-autumn-muted text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg transition-all duration-300 active:scale-95 cursor-pointer"
+                        className="primary-action text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg transition-all duration-300 active:scale-95 cursor-pointer"
                       >
                         Add to Cart
                       </button>

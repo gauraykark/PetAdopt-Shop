@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
+const UserDashboard = ({ externalRequests }) => {
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
   const [user] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
   const [adoptionRequests, setAdoptionRequests] = useState(externalRequests || []);
   const [applicationsLoading, setApplicationsLoading] = useState(
@@ -19,12 +21,15 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
     }
   });
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/', { replace: true });
+  };
+
   useEffect(() => {
     if (externalRequests) return;
-    if (!user?.id) {
-      setApplicationsLoading(false);
-      return;
-    }
+    if (!user?.id) return;
 
     fetch(`${API_URL}/api/applications`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
@@ -60,14 +65,14 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
   ).length;
 
   return (
-    <div className="w-full min-h-screen overflow-x-hidden bg-gradient-to-br from-black via-[#08130f] to-[#0f241a] px-4 sm:px-6 py-12 text-white">
+    <div className="app-page w-full min-h-screen overflow-x-hidden px-4 sm:px-6 py-12 text-white">
       <div className="max-w-[1600px] mx-auto pt-8">
         
         {/* Profile Header Banner */}
-        <div className="rounded-3xl bg-black/20 backdrop-blur-3xl border border-white/15 p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 ring-1 ring-white/10">
+        <div className="glass-panel rounded-2xl p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
             <div className="relative">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 border-2 border-autumn-primary ring-4 ring-white/10 flex items-center justify-center text-3xl font-bold text-white">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 border-2 border-autumn-border ring-4 ring-white/10 flex items-center justify-center text-3xl font-bold text-white">
                 {(user?.name || 'U').slice(0, 1).toUpperCase()}
               </div>
               <span className="absolute bottom-1 right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-black" />
@@ -80,6 +85,13 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
               <p className="text-xs text-white/50 mt-2">Your account</p>
             </div>
           </div>
+
+          <button
+            onClick={handleLogout}
+            className="secondary-action rounded-xl px-5 py-3 text-sm font-semibold cursor-pointer"
+          >
+            Log Out
+          </button>
 
         </div>
 

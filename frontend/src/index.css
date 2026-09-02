@@ -21,3 +21,113 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition-timing-function: ease-in-out;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-autumn-border);
+  outline-offset: 2px;
+}
+
+.app-page {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(156, 102, 68, 0.12), transparent 30%),
+    linear-gradient(135deg, #050806 0%, #08130f 52%, #0f241a 100%);
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(24px);
+}
+
+.surface-card {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  transition: border-color 300ms ease-in-out, transform 300ms ease-in-out, box-shadow 300ms ease-in-out;
+}
+
+.surface-card:hover {
+  border-color: rgba(221, 184, 146, 0.46);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+  transform: translateY(-3px);
+}
+
+.primary-action {
+  background: var(--color-autumn-primary);
+  color: white;
+  transition: background-color 250ms ease-in-out, transform 250ms ease-in-out, box-shadow 250ms ease-in-out;
+}
+
+.primary-action:hover {
+  background: var(--color-autumn-muted);
+  box-shadow: 0 10px 24px rgba(156, 102, 68, 0.24);
+  transform: translateY(-1px);
+}
+
+.secondary-action {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--color-autumn-bg);
+  transition: background-color 250ms ease-in-out, border-color 250ms ease-in-out, color 250ms ease-in-out;
+}
+
+.secondary-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(221, 184, 146, 0.42);
+  color: white;
+}
+
+.field-control {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.75rem;
+  color: white;
+  transition: border-color 200ms ease-in-out, background-color 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+
+.field-control:hover {
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.field-control:focus {
+  background: rgba(0, 0, 0, 0.42);
+  border-color: var(--color-autumn-border);
+  box-shadow: 0 0 0 3px rgba(221, 184, 146, 0.12);
+  outline: none;
+}
+
+.modal-surface {
+  background: linear-gradient(145deg, rgba(12, 28, 20, 0.98), rgba(4, 9, 7, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

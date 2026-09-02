@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ApplyAdoption from '../pages/ApplyAdoption';
 
 const PetCard = ({ pet }) => {
@@ -16,7 +16,7 @@ const PetCard = ({ pet }) => {
       {/* Main Card Container */}
       <div
         onClick={() => setIsExpanded(true)}
-        className="group relative cursor-pointer rounded-[2rem] bg-black/20 backdrop-blur-3xl border border-white/20 shadow-[0_12px_40px_rgba(0,0,0,0.5)] ring-1 ring-white/10 p-6 transition-all duration-500 hover:scale-[1.02] hover:border-white/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.7)] flex flex-col justify-between"
+        className="surface-card group relative cursor-pointer rounded-2xl p-5 transition-all duration-500 ease-in-out flex flex-col justify-between"
       >
         {/* Subtle Warm Glow Behind Image */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-autumn-primary/20 blur-3xl rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50" />
@@ -65,7 +65,7 @@ const PetCard = ({ pet }) => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-2xl w-full rounded-[2.5rem] bg-black/40 backdrop-blur-3xl border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)] p-8 text-white ring-1 ring-white/20 overflow-hidden"
+            className="modal-surface relative max-w-2xl w-full rounded-2xl p-6 sm:p-8 text-white overflow-hidden"
           >
             {/* Ambient background blur inside modal */}
             <div className="absolute -top-24 -right-24 w-72 h-72 bg-autumn-primary/30 blur-3xl rounded-full pointer-events-none" />
@@ -106,7 +106,7 @@ const PetCard = ({ pet }) => {
 
             <button
               onClick={handleOpenApply}
-              className="w-full bg-autumn-primary hover:bg-autumn-muted text-white font-bold text-lg py-4 rounded-2xl shadow-xl transition-all duration-300 active:scale-[0.98] cursor-pointer"
+              className="primary-action w-full font-bold text-lg py-4 rounded-xl shadow-xl transition-all duration-300 ease-in-out active:scale-[0.98] cursor-pointer"
             >
               Apply for Adoption
             </button>

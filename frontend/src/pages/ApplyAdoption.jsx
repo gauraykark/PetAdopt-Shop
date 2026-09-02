@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -87,7 +87,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-opacity duration-300">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-[#0c1c14] via-[#08130f] to-black border border-white/20 p-6 sm:p-8 text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)] ring-1 ring-white/10 no-scrollbar">
+      <div className="modal-surface relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 sm:p-8 text-white no-scrollbar">
 
         {/* Close Button */}
         <button
@@ -146,7 +146,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="Name"
-                    className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-autumn-primary transition-all"
+                    className="field-control w-full px-3.5 py-2.5 placeholder-white/30"
                   />
                 </div>
                 <div>
@@ -158,7 +158,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Email"
-                    className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-autumn-primary transition-all"
+                    className="field-control w-full px-3.5 py-2.5 placeholder-white/30"
                   />
                 </div>
               </div>
@@ -173,7 +173,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="(555) 000-0000"
-                    className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-autumn-primary transition-all"
+                    className="field-control w-full px-3.5 py-2.5 placeholder-white/30"
                   />
                 </div>
                 <div>
@@ -182,7 +182,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     name="housingType"
                     value={formData.housingType}
                     onChange={handleChange}
-                    className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-autumn-primary transition-all"
+                    className="field-control w-full px-3.5 py-2.5"
                   >
                     <option value="House" className="bg-gray-900">House</option>
                     <option value="Apartment" className="bg-gray-900">Apartment</option>
@@ -195,7 +195,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     name="ownOrRent"
                     value={formData.ownOrRent}
                     onChange={handleChange}
-                    className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-autumn-primary transition-all"
+                    className="field-control w-full px-3.5 py-2.5"
                   >
                     <option value="Own" className="bg-gray-900">Own</option>
                     <option value="Rent" className="bg-gray-900">Rent</option>
@@ -230,7 +230,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                   value={formData.experience}
                   onChange={handleChange}
                   placeholder="Briefly describe your experience caring for pets..."
-                  className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2 text-white placeholder-white/30 focus:outline-none focus:border-autumn-primary transition-all"
+                  className="field-control w-full px-3.5 py-2 placeholder-white/30"
                 />
               </div>
 
@@ -245,7 +245,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                   value={formData.reason}
                   onChange={handleChange}
                   placeholder="Tell us a little bit about your home and lifestyle..."
-                  className="w-full bg-black/40 border border-white/15 rounded-xl px-3.5 py-2 text-white placeholder-white/30 focus:outline-none focus:border-autumn-primary transition-all"
+                  className="field-control w-full px-3.5 py-2 placeholder-white/30"
                 />
               </div>
 
@@ -254,14 +254,14 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                   type="button"
                   onClick={onClose}
                   disabled={loading}
-                  className="w-1/3 bg-white/10 hover:bg-white/15 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                  className="secondary-action w-1/3 text-white font-semibold py-3 rounded-xl cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 bg-autumn-primary hover:bg-autumn-muted text-white font-semibold py-3 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                  className="primary-action w-2/3 font-semibold py-3 rounded-xl shadow-lg transition-all duration-300 ease-in-out active:scale-95 cursor-pointer disabled:opacity-50"
                 >
                   {loading ? 'Submitting...' : 'Submit Application'}
                 </button>
