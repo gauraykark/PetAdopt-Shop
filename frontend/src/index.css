@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-autumn-bg: #EDE0D4;
+  --color-autumn-card: #E6CCB2;
+  --color-autumn-border: #DDB892;
+  --color-autumn-muted: #B08968;
+  --color-autumn-primary: #9C6644;
+  --color-autumn-dark: #7F5539;
+}
+
+body {
+  background-color: var(--color-autumn-bg);
+  color: var(--color-autumn-dark);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
