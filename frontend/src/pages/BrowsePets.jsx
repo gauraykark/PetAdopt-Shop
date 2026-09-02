@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import PetCard from '../components/PetCard';
 import UserDashboard from './UserDashboard';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || 'http://localhost:5000') : '';
 
 // Shop items are static/UI-only (no backend for shop)
 const shopData = [
