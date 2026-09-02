@@ -24,6 +24,26 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const requiredFields = {
+      'full name': formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      'housing type': formData.housingType,
+      'own or rent': formData.ownOrRent,
+      'other pets': formData.hasOtherPets,
+      reason: formData.reason,
+      'pet ID': pet?.id,
+    };
+    const missingField = Object.entries(requiredFields).find(
+      ([, value]) => value === undefined || value === null || String(value).trim() === ''
+    )?.[0];
+
+    if (missingField) {
+      setErrorMsg(`Please provide your ${missingField}.`);
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
 
@@ -36,14 +56,14 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
         },
         body: JSON.stringify({
           pet_id: pet.id,
-          full_name: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
+          full_name: formData.fullName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
           housing_type: formData.housingType,
           own_or_rent: formData.ownOrRent,
           other_pets: formData.hasOtherPets,
           experience: formData.experience,
-          applicant_notes: formData.reason,
+          applicant_notes: formData.reason.trim(),
         }),
       });
 
