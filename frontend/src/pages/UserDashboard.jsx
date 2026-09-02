@@ -1,113 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-const mockUserData = {
-  name: 'Alex Johnson',
-  email: 'alex.johnson@example.com',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-  memberSince: 'January 2025',
-  stats: {
-    adoptionsCompleted: 1,
-    savedPets: 4,
-    totalOrders: 6,
-  },
-  adoptionRequests: [
-    {
-      id: 'REQ-101',
-      petName: 'Luna',
-      breed: 'Siberian Husky',
-      image: 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&q=80&w=800',
-      status: 'In Review',
-      date: 'May 12, 2026',
-      shelter: 'Warm Paws Rescue - North Branch',
-      applicantNotes: 'Has a fenced backyard and experience with energetic breeds.',
-      timeline: [
-        { title: 'Application Submitted', date: 'May 12, 2026', completed: true },
-        { title: 'Background Check', date: 'May 13, 2026', completed: true },
-        { title: 'Shelter Review & Interview', date: 'In Progress', completed: false },
-        { title: 'Final Decision', date: 'Pending', completed: false },
-      ]
-    },
-    {
-      id: 'REQ-089',
-      petName: 'Oliver',
-      breed: 'Tabby Cat',
-      image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800',
-      status: 'Approved',
-      date: 'April 28, 2026',
-      shelter: 'City Animal Care Center',
-      applicantNotes: 'Quiet home environment, ideal for an indoor cat.',
-      timeline: [
-        { title: 'Application Submitted', date: 'April 28, 2026', completed: true },
-        { title: 'Background Check', date: 'April 29, 2026', completed: true },
-        { title: 'Shelter Review & Interview', date: 'May 01, 2026', completed: true },
-        { title: 'Final Approval', date: 'May 03, 2026', completed: true },
-      ]
-    },
-  ],
-  recentOrders: [
-    {
-      id: 'ORD-9823',
-      date: 'May 02, 2026',
-      items: 'Premium Dog Chow, Interactive Chew Toy',
-      total: '$57.99',
-      status: 'Delivered',
-    },
-    {
-      id: 'ORD-9751',
-      date: 'April 15, 2026',
-      items: 'Automatic Water Fountain',
-      total: '$39.99',
-      status: 'Delivered',
-    },
-  ],
-  savedPets: [
-    { id: 1, name: 'Buddy', breed: 'Golden Retriever', image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800' },
-    { id: 4, name: 'Milo', breed: 'French Bulldog', image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800' },
-    { id: 9, name: 'Daisy', breed: 'Corgi', image: 'https://images.unsplash.com/photo-1612536057832-2ff7ead7819c?auto=format&fit=crop&q=80&w=800' },
-    { id: 13, name: 'Leo', breed: 'Ragdoll Cat', image: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&q=80&w=800' },
-  ],
-};
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
   const [activeTab, setActiveTab] = useState('overview');
-  
-  // State for dynamic adoption requests
-  const [adoptionRequests, setAdoptionRequests] = useState(
-    externalRequests || mockUserData.adoptionRequests
+  const [user] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
+  const [adoptionRequests, setAdoptionRequests] = useState(externalRequests || []);
+  const [applicationsLoading, setApplicationsLoading] = useState(
+    !externalRequests && Boolean(user?.id)
   );
+  const [applicationsError, setApplicationsError] = useState('');
+
+  useEffect(() => {
+    if (externalRequests) return;
+    if (!user?.id) {
+      setApplicationsLoading(false);
+      return;
+    }
+
+    fetch(`${API_URL}/api/applications`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || data.message || 'Failed to load applications');
+        return data;
+      })
+      .then((applications) => {
+        setAdoptionRequests(applications.map((application) => ({
+          id: application.id,
+          petName: application.pets?.name || 'Pet',
+          breed: application.pets?.breed || 'Unknown breed',
+          image: application.pets?.image_url || '',
+          status: application.status,
+          date: application.created_at
+            ? new Date(application.created_at).toLocaleDateString('en-US')
+            : 'Unknown date',
+          applicantNotes: application.applicant_notes,
+        })));
+      })
+      .catch((error) => setApplicationsError(error.message))
+      .finally(() => setApplicationsLoading(false));
+  }, [externalRequests, user?.id]);
 
   // Selected request state for the View Details modal
   const [selectedRequest, setSelectedRequest] = useState(null);
-
-  // Function to prepend new adoption requests when triggered
-  const handleNewAdoption = (newRequest) => {
-    const formattedRequest = {
-      id: `REQ-${Math.floor(100 + Math.random() * 900)}`,
-      petName: newRequest.petName || newRequest.name,
-      breed: newRequest.breed,
-      image: newRequest.image,
-      status: 'In Review',
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: '2-digit',
-        year: 'numeric',
-      }),
-      shelter: 'Haven Pet Rescue Center',
-      applicantNotes: 'Submitted via fast-track adoption request.',
-      timeline: [
-        { title: 'Application Submitted', date: 'Today', completed: true },
-        { title: 'Background Check', date: 'Pending', completed: false },
-        { title: 'Shelter Review & Interview', date: 'Pending', completed: false },
-        { title: 'Final Decision', date: 'Pending', completed: false },
-      ]
-    };
-
-    setAdoptionRequests((prev) => [formattedRequest, ...prev]);
-
-    if (onAddAdoptionRequest) {
-      onAddAdoptionRequest(formattedRequest);
-    }
-  };
 
   // Computed metric count dynamically linked to current state
   const pendingCount = adoptionRequests.filter(
@@ -122,25 +59,20 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
         <div className="rounded-3xl bg-black/20 backdrop-blur-3xl border border-white/15 p-6 sm:p-8 mb-8 flex flex-col md:flex-row items-center justify-between gap-6 ring-1 ring-white/10">
           <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
             <div className="relative">
-              <img
-                src={mockUserData.avatar}
-                alt={mockUserData.name}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-autumn-primary ring-4 ring-white/10"
-              />
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 border-2 border-autumn-primary ring-4 ring-white/10 flex items-center justify-center text-3xl font-bold text-white">
+                {(user?.name || 'U').slice(0, 1).toUpperCase()}
+              </div>
               <span className="absolute bottom-1 right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-black" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-1">
-                {mockUserData.name}
+                {user?.name || 'User Profile'}
               </h1>
-              <p className="text-autumn-bg text-sm sm:text-base">{mockUserData.email}</p>
-              <p className="text-xs text-white/50 mt-2">Member since {mockUserData.memberSince}</p>
+              <p className="text-autumn-bg text-sm sm:text-base">{user?.email || 'No email available'}</p>
+              <p className="text-xs text-white/50 mt-2">Your account</p>
             </div>
           </div>
 
-          <button className="bg-autumn-primary hover:bg-autumn-muted text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-300 active:scale-95 cursor-pointer">
-            Edit Profile
-          </button>
         </div>
 
         {/* Navigation Tabs */}
@@ -171,21 +103,26 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
               </div>
               <div className="rounded-2xl bg-black/15 backdrop-blur-3xl border border-white/15 p-5 ring-1 ring-white/10">
                 <span className="text-xs uppercase font-semibold text-autumn-bg tracking-wider">Pets Adopted</span>
-                <p className="text-3xl font-bold mt-2">{mockUserData.stats.adoptionsCompleted}</p>
+                <p className="text-3xl font-bold mt-2">{adoptionRequests.filter((req) => req.status === 'Approved').length}</p>
               </div>
               <div className="rounded-2xl bg-black/15 backdrop-blur-3xl border border-white/15 p-5 ring-1 ring-white/10">
                 <span className="text-xs uppercase font-semibold text-autumn-bg tracking-wider">Saved Pets</span>
-                <p className="text-3xl font-bold mt-2">{mockUserData.stats.savedPets}</p>
+                <p className="text-3xl font-bold mt-2">0</p>
               </div>
               <div className="rounded-2xl bg-black/15 backdrop-blur-3xl border border-white/15 p-5 ring-1 ring-white/10">
                 <span className="text-xs uppercase font-semibold text-autumn-bg tracking-wider">Total Shop Orders</span>
-                <p className="text-3xl font-bold mt-2">{mockUserData.stats.totalOrders}</p>
+                <p className="text-3xl font-bold mt-2">0</p>
               </div>
             </div>
 
             {/* Adoption Applications Section */}
             <div className="rounded-3xl bg-black/15 backdrop-blur-3xl border border-white/15 p-6 ring-1 ring-white/10">
               <h2 className="text-xl font-bold mb-4">Active Adoption Requests ({adoptionRequests.length})</h2>
+              {applicationsLoading && <p className="py-6 text-autumn-bg">Loading your applications...</p>}
+              {applicationsError && <p className="py-6 text-red-300">{applicationsError}</p>}
+              {!applicationsLoading && !applicationsError && adoptionRequests.length === 0 && (
+                <p className="py-6 text-autumn-bg">You have not submitted any adoption applications yet.</p>
+              )}
               <div className="space-y-4">
                 {adoptionRequests.map((req) => (
                   <div
@@ -272,57 +209,15 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
         {activeTab === 'orders' && (
           <div className="rounded-3xl bg-black/15 backdrop-blur-3xl border border-white/15 p-6 ring-1 ring-white/10">
             <h2 className="text-xl font-bold mb-6">Recent Store Orders</h2>
-            <div className="space-y-4">
-              {mockUserData.recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                >
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs font-semibold text-autumn-primary">{order.id}</span>
-                      <span className="text-xs text-white/50">• {order.date}</span>
-                    </div>
-                    <p className="text-sm font-medium mt-1">{order.items}</p>
-                  </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-6">
-                    <span className="text-base font-bold">{order.total}</span>
-                    <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="py-6 text-autumn-bg">No store orders yet.</p>
           </div>
         )}
 
         {/* Tab Content: SAVED PETS */}
         {activeTab === 'saved' && (
           <div>
-            <h2 className="text-xl font-bold mb-6">Favorites ({mockUserData.savedPets.length})</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-              {mockUserData.savedPets.map((pet) => (
-                <div
-                  key={pet.id}
-                  className="rounded-3xl bg-black/15 backdrop-blur-3xl border border-white/15 p-3.5 ring-1 ring-white/20 text-white flex flex-col justify-between hover:border-white/30 transition-all duration-300"
-                >
-                  <div>
-                    <div className="overflow-hidden rounded-2xl h-40 w-full mb-3">
-                      <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
-                    </div>
-                    <h3 className="text-lg font-bold">{pet.name}</h3>
-                    <p className="text-xs text-autumn-bg">{pet.breed}</p>
-                  </div>
-                  <button 
-                    onClick={() => handleNewAdoption(pet)}
-                    className="mt-4 w-full bg-autumn-primary hover:bg-autumn-muted text-white text-xs font-semibold py-2.5 rounded-xl transition-all duration-300 cursor-pointer active:scale-95"
-                  >
-                    Apply to Adopt
-                  </button>
-                </div>
-              ))}
-            </div>
+            <h2 className="text-xl font-bold mb-6">Saved Pets (0)</h2>
+            <p className="py-6 text-autumn-bg">You have no saved pets yet.</p>
           </div>
         )}
 

@@ -126,7 +126,7 @@ const BrowsePets = () => {
       <div className="max-w-[1600px] mx-auto">
 
         {/* Navigation Bar */}
-        <header className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 pb-4 border-b border-white/10">
+        <header className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-4 mb-8 pb-4 border-b border-white/10">
 
           {/* Logo */}
           <div
@@ -170,31 +170,31 @@ const BrowsePets = () => {
             </button>
           </div>
 
-          {/* Dashboard / Account Button */}
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
-              activeTab === 'dashboard'
-                ? 'bg-autumn-primary/20 border-autumn-primary text-white'
-                : 'bg-black/20 border-white/15 text-autumn-bg hover:text-white hover:border-white/30'
-            }`}
-          >
-            <img
-              src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400'}
-              alt={user?.name || 'User'}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-autumn-primary"
-            />
-            <span className="text-sm font-semibold hidden sm:inline">
-              {user?.name || 'My Account'}
-            </span>
-          </button>
+          <div className="flex items-center justify-center md:justify-end gap-3">
+            {/* Dashboard / Account Button */}
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex items-center gap-3 px-4 py-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                activeTab === 'dashboard'
+                  ? 'bg-autumn-primary/20 border-autumn-primary text-white'
+                  : 'bg-black/20 border-white/15 text-autumn-bg hover:text-white hover:border-white/30'
+              }`}
+            >
+              <span className="w-8 h-8 rounded-full bg-white/10 ring-2 ring-autumn-primary flex items-center justify-center text-sm font-bold text-white">
+                {(user?.name || 'U').slice(0, 1).toUpperCase()}
+              </span>
+              <span className="text-sm font-semibold hidden sm:inline">
+                {user?.name || 'My Account'}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/15 bg-black/20 text-autumn-bg hover:text-white hover:border-white/30 transition-all cursor-pointer"
-          >
-            Cart ({cartCount})
-          </button>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/15 bg-black/20 text-autumn-bg hover:text-white hover:border-white/30 transition-all cursor-pointer"
+            >
+              Cart ({cartCount})
+            </button>
+          </div>
         </header>
 
         {isCartOpen && (
