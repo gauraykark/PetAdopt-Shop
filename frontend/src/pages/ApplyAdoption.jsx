@@ -7,9 +7,9 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
     fullName: '',
     email: '',
     phone: '',
-    housingType: 'House',
+    housingType: 'Apartment',
     ownOrRent: 'Own',
-    hasOtherPets: 'No',
+    otherPets: 'No',
     experience: '',
     reason: '',
   });
@@ -58,7 +58,7 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
           phone: formData.phone.trim(),
           housing_type: formData.housingType,
           own_or_rent: formData.ownOrRent,
-          other_pets: formData.hasOtherPets,
+          other_pets: formData.otherPets,
           experience: formData.experience,
           applicant_notes: formData.reason.trim(),
         }),
@@ -210,9 +210,9 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
                     <label key={opt} className="flex items-center gap-2 cursor-pointer text-xs text-white/80">
                       <input
                         type="radio"
-                        name="hasOtherPets"
+                        name="otherPets"
                         value={opt}
-                        checked={formData.hasOtherPets === opt}
+                        checked={formData.otherPets === opt}
                         onChange={handleChange}
                         className="accent-autumn-primary"
                       />
