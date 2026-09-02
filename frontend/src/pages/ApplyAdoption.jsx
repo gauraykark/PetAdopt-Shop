@@ -29,9 +29,6 @@ const ApplyAdoption = ({ pet, onClose, onSubmitSuccess }) => {
       'full name': formData.fullName,
       email: formData.email,
       phone: formData.phone,
-      'housing type': formData.housingType,
-      'own or rent': formData.ownOrRent,
-      'other pets': formData.hasOtherPets,
       reason: formData.reason,
       'pet ID': pet?.id,
     };

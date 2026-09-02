@@ -23,15 +23,24 @@ export const createAdoption = async (req, res) => {
     full_name,
     email,
     phone,
-    housing_type,
-    own_or_rent,
-    other_pets,
-    experience,
     applicant_notes,
   } = req.body;
 
-  if (!pet_id || !full_name || !email || !phone || !applicant_notes) {
-    return res.status(400).json({ error: 'All fields are required.' });
+  const requiredFields = {
+    pet_id,
+    full_name,
+    email,
+    phone,
+    applicant_notes,
+  };
+  const missingFields = Object.entries(requiredFields)
+    .filter(([, value]) => value === undefined || value === null || String(value).trim() === '')
+    .map(([field]) => field);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: `Missing required fields: ${missingFields.join(', ')}`,
+    });
   }
 
   try {

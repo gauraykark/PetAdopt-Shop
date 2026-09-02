@@ -24,6 +24,14 @@ const shopData = [
 const BrowsePets = () => {
   const [activeTab, setActiveTab] = useState('pets');
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [cart, setCart] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('petHavenCart') || '[]');
+    } catch {
+      return [];
+    }
+  });
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Pets fetched from the backend
   const [pets, setPets] = useState([]);
@@ -67,6 +75,47 @@ const BrowsePets = () => {
     ...pet,
     image: pet.image_url || pet.image || '',
   });
+
+  const addToCart = (item) => {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find((cartItem) => cartItem.id === item.id);
+      const nextCart = existingItem
+        ? currentCart.map((cartItem) => (
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        ))
+        : [...currentCart, { ...item, quantity: 1 }];
+
+      localStorage.setItem('petHavenCart', JSON.stringify(nextCart));
+      return nextCart;
+    });
+    setIsCartOpen(true);
+  };
+
+  const updateCartQuantity = (itemId, change) => {
+    setCart((currentCart) => {
+      const nextCart = currentCart
+        .map((item) => (
+          item.id === itemId ? { ...item, quantity: item.quantity + change } : item
+        ))
+        .filter((item) => item.quantity > 0);
+
+      localStorage.setItem('petHavenCart', JSON.stringify(nextCart));
+      return nextCart;
+    });
+  };
+
+  const clearCart = () => {
+    localStorage.removeItem('petHavenCart');
+    setCart([]);
+  };
+
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartTotal = cart.reduce(
+    (total, item) => total + Number(item.price.replace('$', '')) * item.quantity,
+    0
+  );
 
   return (
     <div
@@ -139,7 +188,64 @@ const BrowsePets = () => {
               {user?.name || 'My Account'}
             </span>
           </button>
+
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/15 bg-black/20 text-autumn-bg hover:text-white hover:border-white/30 transition-all cursor-pointer"
+          >
+            Cart ({cartCount})
+          </button>
         </header>
+
+        {isCartOpen && (
+          <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setIsCartOpen(false)}>
+            <aside
+              className="absolute right-0 top-0 h-full w-full max-w-md overflow-y-auto bg-[#08130f] border-l border-white/15 p-6 text-white shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <h2 className="text-2xl font-bold">Your Cart</h2>
+                <button onClick={() => setIsCartOpen(false)} className="text-white/70 hover:text-white cursor-pointer">Close</button>
+              </div>
+
+              {cart.length === 0 ? (
+                <p className="py-10 text-center text-autumn-bg">Your cart is empty.</p>
+              ) : (
+                <>
+                  <div className="space-y-4 py-6">
+                    {cart.map((item) => (
+                      <div key={item.id} className="flex gap-3 border-b border-white/10 pb-4">
+                        <img src={item.image} alt={item.name} className="h-16 w-16 rounded-xl object-cover" />
+                        <div className="min-w-0 flex-1">
+                          <h3 className="truncate font-semibold">{item.name}</h3>
+                          <p className="text-sm text-autumn-bg">{item.price} each</p>
+                          <div className="mt-2 flex items-center gap-3 text-sm">
+                            <button onClick={() => updateCartQuantity(item.id, -1)} className="h-7 w-7 rounded-lg bg-white/10 hover:bg-white/20 cursor-pointer">-</button>
+                            <span>{item.quantity}</span>
+                            <button onClick={() => updateCartQuantity(item.id, 1)} className="h-7 w-7 rounded-lg bg-white/10 hover:bg-white/20 cursor-pointer">+</button>
+                            <button onClick={() => updateCartQuantity(item.id, -item.quantity)} className="ml-auto text-red-300 hover:text-red-200 cursor-pointer">Remove</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-white/10 pt-4">
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Total</span>
+                      <span>${cartTotal.toFixed(2)}</span>
+                    </div>
+                    <button className="mt-4 w-full rounded-xl bg-autumn-primary py-3 font-semibold text-white hover:bg-autumn-muted cursor-pointer">
+                      Checkout coming soon
+                    </button>
+                    <button onClick={clearCart} className="mt-3 w-full text-sm text-white/60 hover:text-white cursor-pointer">
+                      Clear cart
+                    </button>
+                  </div>
+                </>
+              )}
+            </aside>
+          </div>
+        )}
 
         {/* Dashboard View */}
         {activeTab === 'dashboard' ? (
@@ -199,7 +305,10 @@ const BrowsePets = () => {
                     </div>
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-lg font-bold text-white">{item.price}</span>
-                      <button className="bg-autumn-primary hover:bg-autumn-muted text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg transition-all duration-300 active:scale-95 cursor-pointer">
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="bg-autumn-primary hover:bg-autumn-muted text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg transition-all duration-300 active:scale-95 cursor-pointer"
+                      >
                         Add to Cart
                       </button>
                     </div>
