@@ -23,6 +23,10 @@ export const createAdoption = async (req, res) => {
     full_name,
     email,
     phone,
+    housing_type,
+    own_or_rent,
+    other_pets,
+    experience,
     applicant_notes,
   } = req.body;
 
