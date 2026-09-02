@@ -10,6 +10,14 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
     !externalRequests && Boolean(user?.id)
   );
   const [applicationsError, setApplicationsError] = useState('');
+  const [orders] = useState(() => {
+    const key = `petHavenOrders:${user?.id || user?.email || 'guest'}`;
+    try {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    } catch {
+      return [];
+    }
+  });
 
   useEffect(() => {
     if (externalRequests) return;
@@ -208,8 +216,28 @@ const UserDashboard = ({ externalRequests, onAddAdoptionRequest }) => {
         {/* Tab Content: ORDERS */}
         {activeTab === 'orders' && (
           <div className="rounded-3xl bg-black/15 backdrop-blur-3xl border border-white/15 p-6 ring-1 ring-white/10">
-            <h2 className="text-xl font-bold mb-6">Recent Store Orders</h2>
-            <p className="py-6 text-autumn-bg">No store orders yet.</p>
+            <h2 className="text-xl font-bold mb-6">Store Orders ({orders.length})</h2>
+            {orders.length === 0 ? (
+              <p className="py-6 text-autumn-bg">No store orders yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order) => (
+                  <div key={order.id} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-xs font-semibold text-autumn-primary">{order.id}</span>
+                        <span className="text-xs text-white/50">{order.date}</span>
+                      </div>
+                      <p className="mt-2 text-sm font-medium">{order.items.map((item) => `${item.name} x${item.quantity}`).join(', ')}</p>
+                    </div>
+                    <div className="flex items-center justify-between gap-6 sm:justify-end">
+                      <span className="text-base font-bold">${Number(order.total).toFixed(2)}</span>
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-400">{order.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

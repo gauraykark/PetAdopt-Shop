@@ -24,6 +24,8 @@ const shopData = [
 const BrowsePets = () => {
   const [activeTab, setActiveTab] = useState('pets');
   const [pageLoaded, setPageLoaded] = useState(false);
+  // Get the logged-in user from localStorage (set during login)
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
   const [cart, setCart] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('petHavenCart') || '[]');
@@ -32,14 +34,19 @@ const BrowsePets = () => {
     }
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [checkoutSuccess, setCheckoutSuccess] = useState('');
+  const [checkoutForm, setCheckoutForm] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    address: '',
+  });
 
   // Pets fetched from the backend
   const [pets, setPets] = useState([]);
   const [petsLoading, setPetsLoading] = useState(true);
   const [petsError, setPetsError] = useState('');
-
-  // Get the logged-in user from localStorage (set during login)
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   useEffect(() => {
     setPageLoaded(true);
@@ -116,6 +123,49 @@ const BrowsePets = () => {
     (total, item) => total + Number(item.price.replace('$', '')) * item.quantity,
     0
   );
+
+  const orderStorageKey = `petHavenOrders:${user?.id || user?.email || 'guest'}`;
+
+  const handleCheckoutChange = (event) => {
+    setCheckoutForm((currentForm) => ({
+      ...currentForm,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleCheckout = (event) => {
+    event.preventDefault();
+    const name = checkoutForm.name.trim();
+    const email = checkoutForm.email.trim();
+    const address = checkoutForm.address.trim();
+
+    if (!name || !email || !address) {
+      setCheckoutError('Please enter your name, email, and delivery address.');
+      return;
+    }
+
+    const order = {
+      id: `ORD-${Date.now()}`,
+      date: new Date().toLocaleDateString('en-US'),
+      items: cart.map(({ id, name: itemName, price, quantity }) => ({
+        id,
+        name: itemName,
+        price,
+        quantity,
+      })),
+      total: cartTotal,
+      status: 'Placed',
+      customer: { name, email, address },
+    };
+    const previousOrders = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
+    localStorage.setItem(orderStorageKey, JSON.stringify([order, ...previousOrders]));
+    clearCart();
+    setCheckoutError('');
+    setIsCheckoutOpen(false);
+    setIsCartOpen(false);
+    setCheckoutSuccess(`Order ${order.id} placed successfully.`);
+    setTimeout(() => setCheckoutSuccess(''), 3500);
+  };
 
   return (
     <div
@@ -234,8 +284,14 @@ const BrowsePets = () => {
                       <span>Total</span>
                       <span>${cartTotal.toFixed(2)}</span>
                     </div>
-                    <button className="mt-4 w-full rounded-xl bg-autumn-primary py-3 font-semibold text-white hover:bg-autumn-muted cursor-pointer">
-                      Checkout coming soon
+                    <button
+                      onClick={() => {
+                        setCheckoutError('');
+                        setIsCheckoutOpen(true);
+                      }}
+                      className="mt-4 w-full rounded-xl bg-autumn-primary py-3 font-semibold text-white hover:bg-autumn-muted cursor-pointer"
+                    >
+                      Checkout
                     </button>
                     <button onClick={clearCart} className="mt-3 w-full text-sm text-white/60 hover:text-white cursor-pointer">
                       Clear cart
@@ -244,6 +300,33 @@ const BrowsePets = () => {
                 </>
               )}
             </aside>
+          </div>
+        )}
+
+        {isCheckoutOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+            <form onSubmit={handleCheckout} className="w-full max-w-lg rounded-3xl border border-white/15 bg-[#08130f] p-6 text-white shadow-2xl">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Checkout</h2>
+                  <p className="text-sm text-autumn-bg">Total: ${cartTotal.toFixed(2)}</p>
+                </div>
+                <button type="button" onClick={() => setIsCheckoutOpen(false)} className="text-white/70 hover:text-white cursor-pointer">Close</button>
+              </div>
+              {checkoutError && <p className="mb-4 rounded-xl border border-red-400/40 bg-red-500/15 p-3 text-sm text-red-200">{checkoutError}</p>}
+              <div className="space-y-4">
+                <input name="name" value={checkoutForm.name} onChange={handleCheckoutChange} placeholder="Full name" required className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white placeholder-white/40 outline-none focus:border-autumn-primary" />
+                <input type="email" name="email" value={checkoutForm.email} onChange={handleCheckoutChange} placeholder="Email address" required className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white placeholder-white/40 outline-none focus:border-autumn-primary" />
+                <textarea name="address" value={checkoutForm.address} onChange={handleCheckoutChange} placeholder="Delivery address" required rows="3" className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white placeholder-white/40 outline-none focus:border-autumn-primary" />
+              </div>
+              <button type="submit" className="mt-6 w-full rounded-xl bg-autumn-primary py-3 font-semibold text-white hover:bg-autumn-muted cursor-pointer">Place Order</button>
+            </form>
+          </div>
+        )}
+
+        {checkoutSuccess && (
+          <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-emerald-400/40 bg-emerald-500/20 px-5 py-3 text-sm text-emerald-100 shadow-xl">
+            {checkoutSuccess}
           </div>
         )}
 
